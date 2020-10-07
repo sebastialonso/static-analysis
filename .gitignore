@@ -1,0 +1,7 @@
+myenv
+analysis/.env
+*.sqlite3
+.idea
+.ipynb_checkpoints
+**/**.pyc
+__pycache__
