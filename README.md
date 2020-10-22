@@ -1,5 +1,8 @@
 # Cornershop Static Analysis
 
+## ast
+
+Useful classes are under `apps/patterns/analyzer.py`. For examples on how to use, check the existing notebooks.
 
 ## Configuration
 

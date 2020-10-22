@@ -59,3 +59,7 @@ def extract_all_files_from_path(path: str, **kwargs) -> List[str]:
         file_list += extract_all_files_from_path(path=next_path, **kwargs)
 
     return file_list
+
+
+def get_full_path(file_path: str) -> str:
+    return os_path.join(getcwd(), settings.REPO_CLONE_PATH , file_path)

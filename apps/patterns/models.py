@@ -2,6 +2,7 @@ import json
 from typing import List, Dict
 from django.db import models
 
+from .utils import epoch_to_datetime_string
 
 class ReportManager(models.Manager):
     def create_report(self, payload: Dict):
@@ -19,8 +20,8 @@ class OcurrenceReport(models.Model):
     last_of_day = models.BooleanField(null=False, default=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
+    app_name = models.CharField(max_length=20, null=False, default="undetermined")
 
-    objects = ReportManager()
 
     @property
     def ocurrences(self) -> List[str]:
@@ -43,4 +44,8 @@ class OcurrenceReport(models.Model):
         setattr(self, "_total", value)
 
     def __str__(self):
-        return f"<{self.id} {self.commit} {self._total}>"
+        committed_at = epoch_to_datetime_string(epoch=self.commited_epoch)
+        return f"<{self.commit} App:{self.app_name} Count:{self._total} {committed_at}>"
+
+    class Meta:
+        unique_together = ['commit', 'app_name']
