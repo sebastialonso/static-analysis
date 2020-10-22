@@ -5,5 +5,5 @@ analysis/.env
 .ipynb_checkpoints
 **/**.pyc
 __pycache__
-repo/
+repo/*
 !repo/.gitkeep
