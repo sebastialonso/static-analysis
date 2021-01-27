@@ -1,16 +1,21 @@
 import json
+import arrow
+from collections import OrderedDict
 from typing import List, Dict
 from django.db import models
-
+from itertools import groupby
 from .utils import epoch_to_datetime_string
 
-class ReportManager(models.Manager):
-    def create_report(self, payload: Dict):
-        ocurrences = payload.get('ocurrences', [])
-        payload.update(total=len(ocurrences))
-        report = self.create(**payload)
-        return report
 
+class OcurrenceReportManager(models.Manager):
+    def aggregate_last_of_day_from_apps(self, apps: List[str]):
+        reports = list(self.filter(app_name__in=apps, last_of_day=True))
+        accum = OrderedDict()
+        reports = sorted(reports, key=lambda report: arrow.get(report.commited_epoch).format('YYYY-MM-DD'))
+        for date, grouped_reports in groupby(reports, lambda report: arrow.get(report.commited_epoch).format('YYYY-MM-DD')):
+            # At this point we should have reports from all apps in `apps` for the given date
+            accum[date] = sum([report.total for report in list(grouped_reports)])
+        return accum
 
 class OcurrenceReport(models.Model):
     commit = models.CharField(null=False, max_length=40)
@@ -22,6 +27,7 @@ class OcurrenceReport(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     app_name = models.CharField(max_length=20, null=False, default="undetermined")
 
+    objects = OcurrenceReportManager()
 
     @property
     def ocurrences(self) -> List[str]:
