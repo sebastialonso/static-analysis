@@ -72,7 +72,7 @@ class Analyzer(BaseFileAnalyzer):
         full_path = path.join(getcwd(), self.root_name, self.entrypoint)
         super(Analyzer, self).start(entrypoint=full_path)
 
-    /def visit_ImportFrom(self, node):
+    def visit_ImportFrom(self, node):
         if node.module is not None and node.module.startswith(self.pattern):
             self.process_node(node)
         self.generic_visit(node)
