@@ -30,3 +30,10 @@ Use this notebook to:
 * get a list of name collisions between your services and every other open PR labled with "catalogdb" in the backend repo.
 
 Read the notebook for more information.
+
+
+## sample_prs.ipynb
+
+Use this notebook to:
+
+* get a list of open PR ordered by a custom score. You must set `FROM_DATE`, `TO_DATE`, `SAMPLE_SIZE`.
