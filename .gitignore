@@ -1,4 +1,7 @@
 myenv
+myenv2
+rosalind
+repo
 analysis/.env
 *.sqlite3
 .idea

@@ -6,6 +6,12 @@ Useful classes are under `apps/patterns/analyzer.py`. For examples on how to use
 
 ## Configuration
 
+
+### Why you need a Github token?
+
+We are going to analyse the backend repo, which is private.
+If you're in the organization, you can download it.
+
 You must first create a `.env` file, within the `analysis` folder.
 Inside complete the following values
 
@@ -37,3 +43,12 @@ Read the notebook for more information.
 Use this notebook to:
 
 * get a list of open PR ordered by a custom score. You must set `FROM_DATE`, `TO_DATE`, `SAMPLE_SIZE`.
+
+## extract_services_documentation.ipynb
+
+Use this notebook to analyse documentation on the `services.py` module of any app
+
+Analysis is currently performed over every function inside the supplied file and the score is based on three elements:
+    * argument typing
+    * non-empty docstring
+    * return type present

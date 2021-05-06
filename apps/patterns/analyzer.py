@@ -6,7 +6,7 @@ from typing import Optional, Dict, List
 from django.conf import settings
 
 from apps.structure import extract_all_files_from_path
-
+from apps.patterns.utils import module_matches_any_pattern_and_match
 
 # Inputs mixin
 class FileReaderMixin:
@@ -62,10 +62,11 @@ class Base64RawContentAnalyzer(Base64ContentReaderMixin, BaseRawContentAnalyzer)
 
 
 class Analyzer(BaseFileAnalyzer):
-    def __init__(self, entrypoint: str, pattern: str, root_name: Optional[str] = None):
+    def __init__(self, entrypoint: str, pattern: str, root_name: Optional[str] = None, **kwargs):
         self.root_name = root_name or settings.REPO_CLONE_PATH
         self.pattern = pattern
         self.hits = []
+        self.study_app = kwargs.pop('study_app')
         super(Analyzer, self).__init__(entrypoint=entrypoint)
 
     def start(self):
@@ -78,23 +79,40 @@ class Analyzer(BaseFileAnalyzer):
         self.generic_visit(node)
 
     def process_node(self, node):
-        self.hits.append(f"{self.entrypoint}:{node.lineno}")
+        if node.module is not None:
+            import_elements = [alias.name for alias in node.names]
+            full_model_import_pattern = f"apps.(?P<app>{self.study_app}).models"
+            app_import_pattern = f"^apps.(?P<app>{self.study_app})$"
+            local_import_pattern = f"(?P<app>{self.study_app}).models$"
+            app_name_pattern = f"^(?P<app>{self.study_app})$"
+
+            matches, match = module_matches_any_pattern_and_match(
+                node_module=node.module,
+                full_model_import_regex=full_model_import_pattern,
+                app_import_regex=app_import_pattern,
+                local_import_regex=local_import_pattern,
+                app_name_regex=app_name_pattern,
+                elements_imported=import_elements,
+            )
+
+            if matches:
+                self.hits.append(f"{self.entrypoint}:{node.lineno}")
 
     def hits(self):
         return self.hits
 
 
-def analyze(file_path: str, pattern: str):
-    analyzer = Analyzer(entrypoint=file_path, pattern=pattern)
+def analyze(file_path: str, pattern: str, study_app: str):
+    analyzer = Analyzer(entrypoint=file_path, pattern=pattern, study_app=study_app)
     analyzer.start()
     return analyzer.hits
 
 
-def analyze_repo_with_pattern(pattern: str, ignore_paths: List[str] = []):
+def analyze_repo_with_pattern(study_app: str, pattern: str, ignore_paths: List[str] = []):
     hits = []
     for file_path in extract_all_files_from_path("apps",
                                                  ignore_paths=ignore_paths):
-        hits += analyze(file_path=file_path, pattern=pattern)
+        hits += analyze(file_path=file_path, pattern=pattern, study_app=study_app)
     return hits
 
 
@@ -150,4 +168,3 @@ def analyze_functions(context: Dict, file_path: Optional[str] = None, content: O
         analyzer = FunctionMetadataBase64ContentAnalyzer(entrypoint=content, context=context)
     analyzer.start()
     return analyzer.get_analysis()
-

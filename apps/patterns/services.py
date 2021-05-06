@@ -42,7 +42,7 @@ def report_ocurrence(study_app: str, ignore_paths: List[str], commit: str = None
             if verbose:
                 print(f"Analyzing commit {current_commit.hexsha}")
             pattern = f"apps.{study_app}.models"
-            hits = analyze_repo_with_pattern(pattern=pattern, ignore_paths=ignore_paths)
+            hits = analyze_repo_with_pattern(study_app=study_app, pattern=pattern, ignore_paths=ignore_paths)
 
             payload = dict(
                 app_name=study_app,
