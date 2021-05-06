@@ -46,9 +46,11 @@ Use this notebook to:
 
 ## extract_services_documentation.ipynb
 
-Use this notebook to analyse documentation on the `services.py` module of any app
+Use this notebook to analyse documentation on the `services.py` module of any app (technically any file will do)
 
 Analysis is currently performed over every function inside the supplied file and the score is based on three elements:
-    * argument typing
-    * non-empty docstring
-    * return type present
+   * argument typing
+   * non-empty docstring
+   * return type present
+
+score goes from 0 to 100.
